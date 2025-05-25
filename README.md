@@ -15,19 +15,18 @@ Automatically scrapes all 174 pages of TNEA cutoff marks from the official websi
 
 ### Prerequisites
 
-- Python 3.13+, Node.js 22, Firefox, GeckoDriver
+- Python 3.13+, Node.js 22, Firefox
 
 ### Install
 
 ```bash
 # Python dependencies
-pip install selenium beautifulsoup4 pandas
+pip install -r requirements.txt
 
 # React dependencies
 npm install
 
-# GeckoDriver (Ubuntu)
-sudo apt-get install firefox-geckodriver
+
 ```
 
 ## Usage
