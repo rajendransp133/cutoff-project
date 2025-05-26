@@ -1,6 +1,7 @@
-// import { useState } from "react";
 import "./App.css";
 import data, { CollegeData } from "./assets/tnea_data";
+import TableFooter from "./tableFooter";
+import { useState, useEffect } from "react";
 
 const tableHeaders = [
   "College Code",
@@ -18,6 +19,24 @@ const tableHeaders = [
   "ST",
 ];
 
+// Pagination utility
+const calculateRange = (data: CollegeData[], rowsPerPage: number): number[] => {
+  const range: number[] = [];
+  const num = Math.ceil(data.length / rowsPerPage);
+  for (let i = 1; i <= num; i++) {
+    range.push(i);
+  }
+  return range;
+};
+
+const sliceData = (
+  data: CollegeData[],
+  page: number,
+  rowsPerPage: number
+): CollegeData[] => {
+  return data.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+};
+
 function TableHeader() {
   return (
     <thead>
@@ -32,7 +51,7 @@ function TableHeader() {
   );
 }
 
-function TableRows() {
+function TableRows({ data }: { data: CollegeData[] }) {
   return (
     <tbody>
       {data.map((row: CollegeData) => (
@@ -47,6 +66,18 @@ function TableRows() {
 }
 
 function App() {
+  const [page, setPage] = useState<number>(1);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  const [tableRange, setTableRange] = useState<number[]>([]);
+  const [slice, setSlice] = useState<CollegeData[]>([]);
+
+  useEffect(() => {
+    const range = calculateRange(data, rowsPerPage);
+    const currentSlice = sliceData(data, page, rowsPerPage);
+    setTableRange(range);
+    setSlice(currentSlice);
+  }, [page, rowsPerPage]);
+
   return (
     <div className="App">
       <h1 className="p-4 text-center font-[Inter_Tight] text-3xl">
@@ -57,9 +88,15 @@ function App() {
         <div className="overflow-x-auto">
           <table>
             <TableHeader />
-            <TableRows />
+            <TableRows data={slice} />
           </table>
         </div>
+        <TableFooter
+          data={data}
+          setPage={setPage}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
+        />
       </div>
     </div>
   );
