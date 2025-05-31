@@ -1,16 +1,54 @@
+body {
+  background-color: rgb(16, 20, 20);
+  color: white;
+  font-family: "Inter", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
 }
+
 th,
 td {
   padding: 0.5rem;
-  border: 2px solid #ccc;
-}
-thead {
-  background-color: gray;
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 0.875rem;
+  letter-spacing: 0.01071em;
 }
 
-tr:nth-child(even) {
-  background-color: #f3f3f3;
+td {
+  background-color: rgb(32, 28, 28);
+  text-align: center;
+}
+
+th {
+  position: relative;
+  background-color: rgb(24, 20, 20);
+  font-weight: normal;
+  color: white;
+}
+
+th::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  right: 0;
+  width: 2px;
+  background-color: #ccc;
+}
+h1 {
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  line-height: 1.5;
+  font-size: 1.625rem;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto; /* Allows horizontal scrolling */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
