@@ -1,5 +1,6 @@
 import "./App.css";
 import data from "./assets/tnea_data";
+
 import type { CollegeData } from "./assets/tnea_data";
 import TableFooter from "./tableFooter";
 import { useState, useEffect } from "react";
