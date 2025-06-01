@@ -1,5 +1,6 @@
 import "./App.css";
-import data, { CollegeData } from "./assets/tnea_data";
+import data from "./assets/tnea_data";
+import type { CollegeData } from "./assets/tnea_data";
 import TableFooter from "./tableFooter";
 import { useState, useEffect } from "react";
 import {
@@ -187,8 +188,12 @@ function App() {
     } else {
       sortedData.sort((a, b) => {
         // Primary sort
-        const valA1 = parseFloat(a[primaryKey ?? ""] ?? "999999");
-        const valB1 = parseFloat(b[primaryKey ?? ""] ?? "999999");
+        const valA1 = primaryKey
+          ? parseFloat(a[primaryKey] ?? "999999")
+          : 999999;
+        const valB1 = primaryKey
+          ? parseFloat(b[primaryKey] ?? "999999")
+          : 999999;
 
         // Handle non-numeric values for primary sort
         if (isNaN(valA1) && isNaN(valB1)) {
@@ -324,7 +329,6 @@ function App() {
         </div>
 
         <TableFooter
-          data={data}
           page={page}
           setPage={setPage}
           rowsPerPage={rowsPerPage}

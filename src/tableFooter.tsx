@@ -1,7 +1,4 @@
-import { CollegeData } from "./assets/tnea_data";
-
 type FooterProps = {
-  data: CollegeData[];
   page: number;
   setPage: (n: number) => void;
   rowsPerPage: number;
@@ -10,7 +7,6 @@ type FooterProps = {
 };
 
 function TableFooter({
-  data,
   page,
   setPage,
   rowsPerPage,
@@ -50,7 +46,7 @@ function TableFooter({
         </select>
       </div>
       <div className="flex flex-wrap gap-2 ">
-        {tableRange.map((range, index) => (
+        {tableRange.map((range) => (
           <button
             key={range}
             onClick={() => setPage(range)}
