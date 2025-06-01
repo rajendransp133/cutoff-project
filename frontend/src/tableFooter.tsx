@@ -54,8 +54,8 @@ function TableFooter({
           <button
             key={range}
             onClick={() => setPage(range)}
-            className={`w-10 h-10  hover:bg-[#90caf9] rounded-full cursor-pointer ${
-              page === range ? "bg-[#90caf9] text-white" : ""
+            className={`w-10 h-10  hover:bg-gray-800 rounded-full cursor-pointer ${
+              page === range ? "bg-gray-800 text-white" : ""
             }`}
           >
             {range}
