@@ -61,6 +61,12 @@ const sliceData = (
   return data.slice((page - 1) * rowsPerPage, page * rowsPerPage);
 };
 
+const getUniqueBranchCodes = (data) => {
+  const allCodes = data.map((dataval) => dataval["Branch Code"]);
+  const uniqueCodes = [...new Set(allCodes)];
+  return uniqueCodes;
+};
+
 function TableRows({ data }: { data: CollegeData[] }) {
   return (
     <tbody>
@@ -88,6 +94,26 @@ function App() {
     KeysToSort: "BC",
     direction: "desc",
   });
+  const [selectedBranches, setSelectedBranches] = useState([]);
+
+  const handleSelectChange = (e) => {
+    const options = e.target.options;
+    const selected = [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        selected.push(options[i].value);
+      }
+    }
+    setSelectedBranches(selected);
+  };
+
+  const clearAll = () => setSelectedBranches([]);
+
+  const removeTag = (branchToRemove) => {
+    setSelectedBranches(
+      selectedBranches.filter((branch) => branch !== branchToRemove)
+    );
+  };
 
   function TableHeader() {
     return (
@@ -166,6 +192,8 @@ function App() {
       });
     }
   }
+
+  const uniqueBranchCodes = getUniqueBranchCodes(data);
 
   useEffect(() => {
     let sortedData = [...data];
@@ -274,7 +302,6 @@ function App() {
                 )}
               </button>
             </div>
-
             <div className="flex items-center gap-2">
               <label htmlFor="sort2Id" className="font-medium text-sm">
                 Secondary Sort:
@@ -312,6 +339,66 @@ function App() {
                   <HiOutlineSortAscending />
                 )}
               </button>
+            </div>
+            <div className="flex flex-col gap-2 w-80">
+              <label htmlFor="branchCodeId" className="font-medium text-sm">
+                Secondary Sort:
+              </label>
+
+              {/* Selected items displayed as tags inside a "fake" input bar */}
+              <div className="flex flex-wrap gap-1 min-h-[38px] px-2 py-1 rounded border border-gray-600 bg-[rgb(32,28,28)] text-white cursor-text">
+                {selectedBranches.length === 0 && (
+                  <span className="text-gray-400 select-none">
+                    Select branches...
+                  </span>
+                )}
+                {selectedBranches.map((branch) => (
+                  <div
+                    key={branch}
+                    className="flex items-center gap-1 bg-blue-600 rounded px-2 py-0.5 text-xs"
+                  >
+                    <span>{branch}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeTag(branch)}
+                      className="hover:text-red"
+                      aria-label={`Remove ${branch}`}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <select
+                id="branchCodeId"
+                multiple
+                value={selectedBranches}
+                onChange={handleSelectChange}
+                className="border px-3 py-1 rounded bg-[rgb(32,28,28)] text-white border-gray-600 text-sm h-32 cursor-pointer"
+              >
+                {uniqueBranchCodes.map((branch) => (
+                  <option
+                    key={branch}
+                    className="bg-[rgb(32,28,28)]"
+                    value={branch}
+                  >
+                    {branch}
+                  </option>
+                ))}
+              </select>
+
+              <div className="flex items-center justify-between mt-1 text-xs text-gray-400">
+                <div>Selected: {selectedBranches.length}</div>
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="text-blue-400 hover:text-blue-600"
+                  disabled={selectedBranches.length === 0}
+                >
+                  Clear All
+                </button>
+              </div>
             </div>
           </div>
 
