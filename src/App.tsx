@@ -2,7 +2,7 @@ import "./App.css";
 import data from "./assets/tnea_data";
 
 import type { CollegeData } from "./assets/tnea_data";
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   HiOutlineSortDescending,
   HiOutlineSortAscending,
