@@ -338,26 +338,28 @@ const FilterCard: React.FC<FilterCardProps> = ({
   removeFilterItem,
   updateSearch,
 }) => (
-  <div className="flex flex-col gap-2 bg-[rgb(32,28,28)] p-4 rounded-lg">
-    <label className="font-medium text-sm">Filter by {config.label}:</label>
+  <div className="flex flex-col gap-3 bg-[rgb(32,28,28)] p-4 rounded-lg shadow-lg">
+    <label className="font-medium text-sm text-gray-100">
+      {config.label} Filter
+    </label>
 
     {/* Selected items display */}
-    <div className="flex flex-wrap gap-1 min-h-[38px] px-2 py-1 rounded border border-gray-600 bg-[rgb(32,28,28)] text-white cursor-text">
+    <div className="flex flex-wrap gap-2 min-h-[42px] px-3 py-2 rounded-md border border-gray-700 bg-[rgb(32,28,28)] text-white cursor-text focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
       {filter.length === 0 ? (
-        <span className="text-gray-400 select-none">
-          Selected {config.label.toLowerCase()}s...
+        <span className="text-gray-400 select-none bg-gray-800/50 px-3 py-1.5 rounded-md border border-gray-700 text-sm hover:bg-gray-800/70 transition-colors">
+          Select {config.label.toLowerCase()}s...
         </span>
       ) : (
         filter.map((item) => (
           <div
             key={item}
-            className="flex items-center gap-1 bg-blue-600 rounded px-2 py-0.5 text-sm"
+            className="flex items-center gap-1.5 bg-blue-600 rounded-md px-2.5 py-1 text-sm font-medium shadow-sm"
           >
             <span>{item}</span>
             <button
               type="button"
               onClick={() => removeFilterItem(config.key, item)}
-              className="hover:text-red-400"
+              className="hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full p-0.5 transition-colors"
               aria-label={`Remove ${item}`}
             >
               &times;
@@ -373,29 +375,31 @@ const FilterCard: React.FC<FilterCardProps> = ({
       placeholder={config.placeholder}
       value={search}
       onChange={(e) => updateSearch(config.key, e.target.value)}
-      className="w-full px-3 py-1 mb-2 rounded border border-gray-600 bg-[rgb(32,28,28)] text-white text-sm"
+      className="w-full px-3 py-2 rounded-md border border-gray-700 bg-[rgb(32,28,28)] text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
     />
 
-    <div className="border rounded bg-[rgb(32,28,28)] text-white border-gray-600 text-sm h-32 overflow-y-auto">
+    <div className="border rounded-md bg-[rgb(32,28,28)] text-white border-gray-700 text-sm h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
       {uniqueValues.map((value) => (
         <div
           key={value}
           onClick={() => updateFilter(config.key, value)}
-          className={`px-3 py-1 cursor-pointer hover:bg-gray-700 ${
-            filter.includes(value) ? "bg-blue-600" : ""
+          className={`px-3 py-2 cursor-pointer hover:bg-gray-700 transition-colors ${
+            filter.includes(value) ? "bg-blue-600 hover:bg-blue-700" : ""
           }`}
+          role="option"
+          aria-selected={filter.includes(value)}
         >
           {value}
         </div>
       ))}
     </div>
 
-    <div className="flex items-center justify-between text-xs text-gray-400">
-      <div>Selected: {filter.length}</div>
+    <div className="flex items-center justify-between text-xs text-gray-400 mt-1">
+      <div className="font-medium">{filter.length} selected</div>
       <button
         type="button"
         onClick={() => clearFilter(config.key)}
-        className="text-blue-400 hover:text-blue-600 disabled:opacity-50"
+        className="text-blue-400 hover:text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={filter.length === 0}
       >
         Clear All
