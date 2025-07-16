@@ -1,5 +1,6 @@
 import "./App.css";
 import data from "./assets/tnea_data";
+import data_rank from "./assets/tnea_data_rank";
 
 import type { CollegeData } from "./assets/tnea_data";
 import React, { useState, useMemo, useCallback } from "react";
@@ -15,7 +16,6 @@ type FilterKey =
   | "branchCodes"
   | "collegeCodes"
   | "collegeNames"
-  
   | "branchNames";
 
 interface Sort {
@@ -161,7 +161,7 @@ const useSorting = () => {
     });
   }, []);
 
-  return { sorts, updateSort, toggleDirection };
+  return { sorts, updateSort, toggleDirection, setSorts };
 };
 
 const useFilters = (data: CollegeData[]) => {
@@ -465,59 +465,13 @@ const TableRows: React.FC<TableRowsProps> = ({ data }) => (
   </tbody>
 );
 
-interface TableFooterProps {
-  page: number;
-  setPage: (page: number) => void;
-  rowsPerPage: number;
-  setRowsPerPage: (rowsPerPage: number) => void;
-  tableRange: number[];
-}
-
-const TableFooter: React.FC<TableFooterProps> = ({
-  page,
-  setPage,
-  rowsPerPage,
-  setRowsPerPage,
-  tableRange,
-}) => (
-  <div className="flex flex-col gap-2 mt-2">
-    <div>
-      <label className="mr-2">Rows per page:</label>
-      <select
-        value={rowsPerPage}
-        onChange={(e) => {
-          setRowsPerPage(parseInt(e.target.value));
-          setPage(1);
-        }}
-        className="border px-2 py-1 rounded bg-[rgb(32,28,28)] text-white border-gray-600"
-      >
-        {[10, 20, 50, 100].map((value) => (
-          <option key={value} value={value}>
-            {value}
-          </option>
-        ))}
-      </select>
-    </div>
-    <div className="flex flex-wrap gap-2">
-      {tableRange.map((pageNum) => (
-        <button
-          key={pageNum}
-          onClick={() => setPage(pageNum)}
-          className={`w-10 h-10 hover:bg-gray-800 rounded-full cursor-pointer ${
-            page === pageNum ? "bg-gray-800 text-white" : ""
-          }`}
-        >
-          {pageNum}
-        </button>
-      ))}
-    </div>
-  </div>
-);
-
-// Main component
-const TNEACutoffTable: React.FC = () => {
+// Extracted Table Section
+const TNEATableSection: React.FC<{ dataType: "cutoff" | "rank" }> = ({
+  dataType,
+}) => {
   const [rowsPerPage, setRowsPerPage] = useState(20);
-  const { sorts, updateSort, toggleDirection } = useSorting();
+  const currentData = dataType === "cutoff" ? data : data_rank;
+  const { sorts, updateSort, toggleDirection, setSorts } = useSorting();
   const {
     filters,
     searches,
@@ -526,11 +480,11 @@ const TNEACutoffTable: React.FC = () => {
     clearFilter,
     removeFilterItem,
     updateSearch,
-  } = useFilters(data);
+  } = useFilters(currentData);
 
   // Apply filters and sorting
   const processedData = useMemo(() => {
-    let result = [...data];
+    let result = [...currentData];
 
     // Apply filters
     Object.entries(filters).forEach(([filterKey, selectedValues]) => {
@@ -583,61 +537,114 @@ const TNEACutoffTable: React.FC = () => {
     });
 
     return result;
-  }, [filters, sorts]);
+  }, [filters, sorts, currentData]);
 
   const { page, setPage, tableRange, paginatedData } = usePagination(
     processedData,
     rowsPerPage
   );
 
+  // Reset sorts when switching dataType
+  React.useEffect(() => {
+    setSorts({
+      primary: { key: "OC", direction: "desc" },
+      secondary: { key: "BC", direction: "desc" },
+    });
+  }, [dataType, setSorts]);
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      {/* Controls */}
+      <div className="mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <SortControls sorts={sorts} updateSort={updateSort} />
+
+          {FILTER_CONFIGS.map((config) => (
+            <FilterCard
+              key={config.key}
+              config={config}
+              filter={filters[config.key]}
+              search={searches[config.key]}
+              uniqueValues={uniqueValues[config.key]}
+              updateFilter={updateFilter}
+              clearFilter={clearFilter}
+              removeFilterItem={removeFilterItem}
+              updateSearch={updateSearch}
+            />
+          ))}
+        </div>
+
+        <div className="mt-4 text-xs text-gray-400 text-center">
+          <span>Click column headers to sort</span>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <div className="min-w-[800px]">
+          <table className="w-full border-collapse border border-gray-600 text-sm">
+            <TableHeader sorts={sorts} toggleDirection={toggleDirection} />
+            <TableRows data={paginatedData} />
+          </table>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2 mt-2">
+        <div>
+          <label className="mr-2">Rows per page:</label>
+          <select
+            value={rowsPerPage}
+            onChange={(e) => {
+              setRowsPerPage(parseInt(e.target.value));
+              setPage(1);
+            }}
+            className="border px-2 py-1 rounded bg-[rgb(32,28,28)] text-white border-gray-600"
+          >
+            {[10, 20, 50, 100].map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {tableRange.map((pageNum) => (
+            <button
+              key={pageNum}
+              onClick={() => setPage(pageNum)}
+              className={`w-10 h-10 hover:bg-gray-800 rounded-full cursor-pointer ${
+                page === pageNum ? "bg-gray-800 text-white" : ""
+              }`}
+            >
+              {pageNum}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Main component
+const TNEACutoffTable: React.FC = () => {
+  const [dataType, setDataType] = useState<"cutoff" | "rank">("cutoff");
+
   return (
     <div className="min-h-screen bg-[rgb(16,20,20)] text-white p-4">
-      <h1 className="text-center font-bold text-3xl mb-8">TNEA CUTOFF 2024</h1>
-
-      <div className="max-w-7xl mx-auto">
-        {/* Controls */}
-        <div className="mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <SortControls sorts={sorts} updateSort={updateSort} />
-
-            {FILTER_CONFIGS.map((config) => (
-              <FilterCard
-                key={config.key}
-                config={config}
-                filter={filters[config.key]}
-                search={searches[config.key]}
-                uniqueValues={uniqueValues[config.key]}
-                updateFilter={updateFilter}
-                clearFilter={clearFilter}
-                removeFilterItem={removeFilterItem}
-                updateSearch={updateSearch}
-              />
-            ))}
-          </div>
-
-          <div className="mt-4 text-xs text-gray-400 text-center">
-            <span>Click column headers to sort</span>
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <div className="min-w-[800px]">
-            <table className="w-full border-collapse border border-gray-600 text-sm">
-              <TableHeader sorts={sorts} toggleDirection={toggleDirection} />
-              <TableRows data={paginatedData} />
-            </table>
-          </div>
-        </div>
-
-        <TableFooter
-          page={page}
-          setPage={setPage}
-          rowsPerPage={rowsPerPage}
-          setRowsPerPage={setRowsPerPage}
-          tableRange={tableRange}
-        />
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
+        <h1 className="text-center font-bold text-3xl">TNEA CUTOFF 2024</h1>
+        <select
+          className="ml-0 md:ml-6 px-3 py-2 rounded bg-[rgb(32,28,28)] text-white border border-gray-600 text-base font-medium"
+          value={dataType}
+          onChange={(e) => setDataType(e.target.value as "cutoff" | "rank")}
+          style={{ minWidth: 120 }}
+        >
+          <option value="cutoff">Cutoff</option>
+          <option value="rank">Rank</option>
+        </select>
       </div>
+      {/* Key prop ensures remount on dataType change */}
+      <TNEATableSection key={dataType} dataType={dataType} />
 
       <style
         dangerouslySetInnerHTML={{
