@@ -15,6 +15,7 @@ type FilterKey =
   | "branchCodes"
   | "collegeCodes"
   | "collegeNames"
+  
   | "branchNames";
 
 interface Sort {
